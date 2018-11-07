@@ -1,7 +1,7 @@
 #XCTF 2018 Finals Web
 ##1.Bestphp
 http://10.99.99.16/
-![](/images/2-1.png)
+![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/2-1.png)
 之前一直忙，好不容易找个时间写writeup...在战队大佬的帮助下完成，要好好做做总结。
 
 bestphp是一道PHP代码审计题，通过扫描发现test.php,admin.php和function.php文件,经过验证都没有什么用，尤其是test.php返回可调用的函数，估计真是出题者测试用的，下午的时候就被删除了...
@@ -53,10 +53,10 @@ POST DATA:name=<?php echo 'helloworld';@eval(\x24_POST['test']);?>
 文件包含
 http://10.99.99.16/index.php?function=extract&file=/tmp/sess_l86epsjlkte51fu6gp4dr9eir3
 ```
-构造[EXP脚本](/files/bestphp_exp.py)
+构造[EXP脚本](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/files/bestphp_exp.py)
 
 get flag，运行结果如下：
-![](/images/2-2.png)
+![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/2-2.png)
 ##2.PUBG
 http://guaika.txmeili.com:8888/
 根据题的要求修改host访问，关键是上来服务环境就崩溃，到下午才恢复。
@@ -65,8 +65,8 @@ http://guaika.txmeili.com:8888/
 http://guaika.txmeili.com:8888/www.zip
 ```
 关键源码Zend加密，先解密，但是变量全是随机长字符，很难读懂，在现场找看看有没有转化的，但没有找到，回来发现了[针对ZEND加密混淆的代码修复工具](http://www.zhaoyuanma.com/phpzendfix.html),可以修复变量名。
-[源码](/files/www.zip)
-[解密后源码](/files/wwwde.zip)
+[源码](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/files/www.zip)
+[解密后源码](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/files/wwwde.zip)
 ###2.1 SQL injection
 在/kss_inc/payapi_return.php 中发现存在SQL注入：
 跟踪$num变量，未进行过滤
@@ -153,10 +153,10 @@ $0_manager_cookie_key = $0_manager['id'].",".$0_username.",".md5( $0_password ).
 >kss_inc/db_function.php
 找到 linecode = efefefef
 
-[cookie生成脚本](/files/get_cookie.py)
+[cookie生成脚本](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/files/get_cookie.py)
 
 ###2.3 后台Getshell
-![](/images/1-2.png)
+![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/1-2.png)
 成功登陆后台，首先想到的是写配置文件，getshell。最后发现config不可写或者报错，导致config信息写入数据库，一顿在后台测试未成功，大多是数据库操作的都需要安全码验证。
 只能继续审计
 >kss_admin/admin_update.php
@@ -197,5 +197,5 @@ http://guaika.txmeili.com:8888/kss_admin/admin_update.php?pakname=../test/kss_ad
 http://guaika.txmeili.com:8888/kss_admin/admin_update.php?pakname=../test/kss_admin/admin_makecache.php%3Faction=123%27%3C%3Fphp%2520system(%22type%2520C:\\dsaodjasovdsjgsmaohsormsdmsama.txt%22);%3F%3E
 ```
 get flag
-![](/images/1-3.png)
+![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/1-3.png)
 
