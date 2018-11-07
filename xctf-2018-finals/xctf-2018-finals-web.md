@@ -1,5 +1,5 @@
-#XCTF 2018 Finals Web
-##1.Bestphp
+# XCTF 2018 Finals Web
+## 1.Bestphp
 http://10.99.99.16/
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/2-1.png)
 之前一直忙，好不容易找个时间写writeup...在战队大佬的帮助下完成，要好好做做总结。
@@ -57,7 +57,7 @@ http://10.99.99.16/index.php?function=extract&file=/tmp/sess_l86epsjlkte51fu6gp4
 
 get flag，运行结果如下：
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/2-2.png)
-##2.PUBG
+## 2.PUBG
 http://guaika.txmeili.com:8888/
 根据题的要求修改host访问，关键是上来服务环境就崩溃，到下午才恢复。
 根目录有备份文件www.zip，到这就说明是PHP代码审计了。
@@ -67,7 +67,7 @@ http://guaika.txmeili.com:8888/www.zip
 关键源码Zend加密，先解密，但是变量全是随机长字符，很难读懂，在现场找看看有没有转化的，但没有找到，回来发现了[针对ZEND加密混淆的代码修复工具](http://www.zhaoyuanma.com/phpzendfix.html),可以修复变量名。
 [源码](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/files/www.zip)
 [解密后源码](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/files/wwwde.zip)
-###2.1 SQL injection
+### 2.1 SQL injection
 在/kss_inc/payapi_return.php 中发现存在SQL注入：
 跟踪$num变量，未进行过滤
 ```
@@ -128,7 +128,7 @@ POST DATA: SerialNo=1&Money=100&Status=1&AttachString=138&MerchantKey=1&VerifySt
 | axing    | 8ccf03839a8c63a3a9de17fa5ac6a192 |  
 密码MD5解密为axing147258 
 直接登录发现，一直显示密码报错，这时候想到，麦香老师说要注意下cookie，所以就想估计是要构造cookie绕过，又要审计下，cookie的创建和验证。
-###2.2构造cookie绕过验证
+### 2.2构造cookie绕过验证
 >kss_inc/function.php
 ```
 function _obf_jZKVlY6HkYmKkIyRj4qSjIc�( $_obf_iYyTho_HlJCOh4yRj4ePj4k�, $_obf_ipCJlJOSlJSQkYqNlYqKlIs� )
@@ -155,7 +155,7 @@ $0_manager_cookie_key = $0_manager['id'].",".$0_username.",".md5( $0_password ).
 
 [cookie生成脚本](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/files/get_cookie.py)
 
-###2.3 后台Getshell
+### 2.3 后台Getshell
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/1-2.png)
 成功登陆后台，首先想到的是写配置文件，getshell。最后发现config不可写或者报错，导致config信息写入数据库，一顿在后台测试未成功，大多是数据库操作的都需要安全码验证。
 只能继续审计
