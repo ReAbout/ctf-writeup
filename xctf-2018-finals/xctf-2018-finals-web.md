@@ -57,6 +57,8 @@ http://10.99.99.16/index.php?function=extract&file=/tmp/sess_l86epsjlkte51fu6gp4
 
 get flag，运行结果如下：
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/2-2.png)
+### 解题方法2
+(LFI via SegmentFault)[https://www.jianshu.com/p/dfd049924258]利用php7一个bug，比赛发现了，但是没有实现出来，看到https://xz.aliyun.com/t/3174 writeup有讲述。
 ## 2.PUBG
 http://guaika.txmeili.com:8888/
 根据题的要求修改host访问，关键是上来服务环境就崩溃，到下午才恢复。
