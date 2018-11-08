@@ -2,7 +2,7 @@
 ## 1.Bestphp
 http://10.99.99.16/
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/xctf-2018-finals/images/2-1.png)
-之前一直忙，好不容易找个时间写writeup...在战队大佬的帮助下完成，要好好做做总结。
+之前一直忙，好不容易找个时间写writeup...首次参赛在战队大佬的帮助下完成，所以要好好做做总结。
 
 bestphp是一道PHP代码审计题，通过扫描发现test.php,admin.php和function.php文件,经过验证都没有什么用，尤其是test.php返回可调用的函数，估计真是出题者测试用的，下午的时候就被删除了...
 初步漏洞点在call_user_func()和include()。
