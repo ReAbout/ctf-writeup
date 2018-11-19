@@ -40,7 +40,7 @@ int dovuln()
 ```
 ## 3.思路：
 漏洞点：char v3[51]数据读取无验证越界，导致栈溢出。
-防护：
+防护：  
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn3.png)<br>
 奇怪的是开启canary，但是无法修改无法触发。主要就是考虑过NX。
 本题提供了libc，就是使用write函数将got表中write（read）地址作为参数，调用plt表中的write函数，得到基地址后加上libc中的system函数在程序中的偏移，就得到了system函数的实际地址，进行调用即可。
@@ -75,7 +75,7 @@ payload2 += p32(system_addr)
 payload2 += p32(1)
 payload2 += p32(bin_sh_addr)
 ```
-__get flag__: flag{Ok_yOu_get@#$_it!}
+__get flag__: flag{Ok_yOu_get@#$_it!}   
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn1.PNG)<br>
 ### [64bit]
 x64思路相同，区别在于参数传递需要通过寄存器入栈。
@@ -106,7 +106,7 @@ payload2 += p64(pop_rdi_addr)
 payload2 += p64(bin_sh_addr)
 payload2 += p64(system_addr)
 ```
-__get flag__: flag{__you_are_so_Cu7e_!!}
+__get flag__: flag{__you_are_so_Cu7e_!!}   
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn2.png)<br>
 # EXP
 [32bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp.py)
