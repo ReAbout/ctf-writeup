@@ -41,7 +41,7 @@ int dovuln()
 ## 3.思路：
 漏洞点：char v3[51]数据读取无验证越界，导致栈溢出。
 防护：
-![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn3.png)
+![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn3.png)<br>
 奇怪的是开启canary，但是无法修改无法触发。主要就是考虑过NX。
 本题提供了libc，就是使用write函数将got表中write（read）地址作为参数，调用plt表中的write函数，得到基地址后加上libc中的system函数在程序中的偏移，就得到了system函数的实际地址，进行调用即可。
 ### 1 [32bit]
@@ -76,14 +76,14 @@ payload2 += p32(1)
 payload2 += p32(bin_sh_addr)
 ```
 __get flag__: flag{Ok_yOu_get@#$_it!}
-![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn1.PNG)
+![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn1.PNG)<br>
 ### [64bit]
 x64思路相同，区别在于参数传递需要通过寄存器入栈。
 >在x64下通常参数从左到右依次放在rdi, rsi, rdx, rcx, r8, r9，多出来的参数才会入栈.
 
 索要就要找到通过32bit我们知道write，需要三个参数，即用到rdi、rsi、rdx三个寄存器。
 利用工具[ROPgadget](https://github.com/JonathanSalwan/ROPgadget)  --binary 指定二进制文件，使用grep在输出的所有gadgets中寻找需要的片段。
-![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn4.png)
+![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn4.png)<br>
 可以看到前面两个都可以找到合适的gadget，但是 pop rdx 的却找不到，也就是write函数的第三个参数是我们不能控制的，但是在动态调试时候，在read函数处下断点可以看到，此时的rdx是为 0x200，也就是说 write 函数的标准输出的长度为0x200字节，这里只要大于8个字节（地址长度），我们都可以得到read函数的真实地址（got表中的地址）
 payload：
 ```
@@ -107,7 +107,7 @@ payload2 += p64(bin_sh_addr)
 payload2 += p64(system_addr)
 ```
 __get flag__: flag{__you_are_so_Cu7e_!!}
-![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn2.png)
+![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn2.png)<br>
 # EXP
 [32bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp.py)
 [64bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp664.py)
