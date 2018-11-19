@@ -1,7 +1,7 @@
 #encoding:utf-8
 import requests
 session = requests.Session()
-cookies = {"PHPSESSID":"l86epsjlkte51fu6gp4dr9eir3"}
+cookies = {"Wajforget_phone":"18512341234"}
 headers = {"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Upgrade-Insecure-Requests":"1","User-Agent":"Mozilla/5.0 (Linux; Android 9.0; Z832 Build/MMB29M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Mobile Safari/537.36","Connection":"close","Accept-Language":"zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3","Accept-Encoding":"gzip, deflate","DNT":"1","Content-Type":"application/x-www-form-urlencoded"}
 
 
