@@ -110,5 +110,5 @@ __get flag__: flag{__you_are_so_Cu7e_!!}
 ![](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/images/pwn2.png)<br>
 # EXP
 [32bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp.py)
-[64bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp664.py)
+[64bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp64.py)
 
