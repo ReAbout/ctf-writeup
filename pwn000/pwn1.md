@@ -1,3 +1,4 @@
+#PWN 1
 ## 1.作业要求：
 分析附件中的2个有漏洞的程序（同一个代码编译的32位版本、64位版本），获取部署了该漏洞程序的目标服务器中的flag（一个文件的内容，格式大概为：flag{...}），即为攻击成功。
 附件中包含2个程序的可执行文件，以及可能需要的libc库。编写你的exploit，完成本地测试之后，去目标服务器验证。
@@ -121,6 +122,6 @@ payload += p64(elf.symbols['main'])
 __get flag__: flag{__you_are_so_Cu7e_!!}   
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/pwn000/images/pwn2.png)<br>
 # EXP
-[32bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp.py)
+[32bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp.py)<br>
 [64bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp64.py)
 
