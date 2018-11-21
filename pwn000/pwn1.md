@@ -46,9 +46,10 @@ int dovuln()
 防护：  
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/pwn000/images/pwn3.png)<br>
 奇怪的是开启canary，但是无法修改无法触发。主要就是考虑过NX。
-本题提供了libc，就是使用write函数将got表中write（read）地址作为参数，调用plt表中的write函数，得到基地址后加上libc中的system函数在程序中的偏移，就得到了system函数的实际地址，进行调用即可。
+本题提供了libc，就是使用write函数将got表中write（read）地址作为参数，调用plt表中的write函数，得到基地址后加上libc中的system函数在程序中的偏移，就得到了system函数的实际地址，进行调用即可。  
+数组v3（51个元素）在栈里后一个是整数v4，偏移为43（距离ebp43）+4（ebp大小）=47，覆盖v4，所以溢出触发payload为51 * 'a'+'\x47'
 ### 1 [32bit]
-####(1)发送payload溢出覆盖return，返回到glt表write函数，输出got表中write的地址，并返回到main函数。
+#### (1)发送payload溢出覆盖return，返回到glt表write函数，输出got表中write的地址，并返回到main函数。
 也就是先调用write(1,write函数地址,4)，第一个参数文件描述符等于1表示输出，4代表输出的长度，中间的就是输出的内容，调用完成后返回主函数，得到基地址后为泄露system函数的地址做准备。
 Payload:
 ```
