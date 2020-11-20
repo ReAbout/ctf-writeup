@@ -131,11 +131,18 @@ name，pass参数传递用户名和密码。
 >题目说明:路由器管理后台被攻陷，运维加了个访问认证，可惜中间件被黑客植入了后门账号。题目端口80（flag在根目录或者/workspace下）
 
 ### 思路
-登录发现，该网站主要通过basic认证方式，appweb中间件，需要找到认证后门，直接定位相关认证逻辑代码。   
-* [ AppWeb认证绕过漏洞（CVE-2018-8715）](https://www.wangan.com/docs/266)
-* [appweb源码下载](https://s3.amazonaws.com/embedthis.public/appweb-src.tgz)
+### 思路
+登录发现，该网站主要通过basic认证方式，appweb中间件，需要找到认证后门。一是直接定位相关认证逻辑代码。可以对比源码来寻找差别。二是直接编译appweb进行bindiff查找不同。      
+
 ### 分步解答
 ### （1）认证后门
+我们可以通过CVE-2018-8715发现，验证逻辑代码函数httpLogin()。
+* [ AppWeb认证绕过漏洞（CVE-2018-8715）](https://www.wangan.com/docs/266)
+* [CVE-2018-8715分析](https://forum.90sec.com/t/topic/512)
+* [appweb源码下载](https://s3.amazonaws.com/embedthis.public/appweb-src.tgz)
+
+在libhttp.so中，添加了一句，只要第二位开始是Mon就可以绕过认证。   aMondmin:123456
+![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/xhlj-2020-iot/images/iot_web_3_httplogin.png)
 
 ### （2）php包含漏洞
 index.php

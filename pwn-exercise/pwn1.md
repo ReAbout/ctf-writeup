@@ -1,11 +1,15 @@
-# PWN 1
-## 1.作业要求：
+# PWN 1-stack overflow x86 32+64
+> 题目：
 分析附件中的2个有漏洞的程序（同一个代码编译的32位版本、64位版本），获取部署了该漏洞程序的目标服务器中的flag（一个文件的内容，格式大概为：flag{...}），即为攻击成功。
 附件中包含2个程序的可执行文件，以及可能需要的libc库。编写你的exploit，完成本地测试之后，去目标服务器验证。
 文件：  
 https://github.com/ReAbout/ctf-writeup/tree/master/pwn000/files/vul
 
-## 2.反汇编代码
+
+[toc]
+
+## 解答
+### 反汇编代码
 vuln32：
 ```
 nt __cdecl main(int argc, const char **argv, const char **envp)
@@ -41,14 +45,15 @@ int dovuln()
   return puts(v3);
 }
 ```
-## 3.思路：
-漏洞点：char v3[51]数据读取无验证越界，导致栈溢出。
+## 思路：
 防护：  
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/pwn000/images/pwn3.png)<br>
+漏洞点：char v3[51]数据读取无验证越界，导致栈溢出。
+
 奇怪的是开启canary，但是无法修改无法触发。主要就是考虑过NX。
 本题提供了libc，就是使用write函数将got表中write（read）地址作为参数，调用plt表中的write函数，得到基地址后加上libc中的system函数在程序中的偏移，就得到了system函数的实际地址，进行调用即可。  
 数组v3（51个元素）在栈里后一个是整数v4，偏移为43（距离ebp43）+4（ebp大小）=47，覆盖v4，所以溢出触发payload为51 * 'a'+'\x47'
-### 1 [32bit]
+###  [32bit]
 #### (1)发送payload溢出覆盖return，返回到glt表write函数，输出got表中write的地址，并返回到main函数。
 也就是先调用write(1,write函数地址,4)，第一个参数文件描述符等于1表示输出，4代表输出的长度，中间的就是输出的内容，调用完成后返回主函数，得到基地址后为泄露system函数的地址做准备。
 Payload:
@@ -123,7 +128,8 @@ payload += p64(elf.symbols['main'])
 
 __get flag__: flag{__you_are_so_Cu7e_!!}   
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/pwn000/images/pwn2.png)<br>
-# EXP
+
+### EXP
 [32bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp.py)<br>
 [64bit Exploit](https://github.com/ReAbout/ctf-writeup/blob/master/pwn000/files/exp64.py)
 
