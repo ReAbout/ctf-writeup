@@ -115,11 +115,11 @@ name，pass参数传递用户名和密码。
 判断用户名和密码hash都写死了，之后生成个`/tmp/sess_xxx`作为session缓存。   
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/xhlj-2020-iot/images/iot_web_2_login.png)
 #### （2）data.out分析
-这个文件存在命令注入，可以读取序列号shln12345678，和主页显示的序列号shlj12345678不一样，一度这点误导一直在通过序列号进行密码拼接碰撞hash密码。   
+这个文件存在命令注入，可以读取序列号shln12345678，和主页显示的序列号shlj12345678不一样，一度被这点误导一直在通过序列号进行密码拼接碰撞hash密码。   
 其实想通过sqlite注入写文件，用户名和密码又是写死的，感觉这硬拼凑在一起的，毫无逻辑关系。   
 #### （3）readflag.out 分析
 这块判断sesion时候，是在1024字节内是否有`:`，然后判断后面字符是否admin，这个逻辑点也有点牵强，正常attach的sqlite的数据库大小超过1024字节了，保存的user:admin字符就在1024字节后。   
-需要限制数据库的大小，通过`page_size=512;`可以限制到1024。   
+需要限制数据库的大小，通过`page_size=512;`可以限制大小。   
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/xhlj-2020-iot/images/iot_web_2_readflag.png) 
 #### （4）利用链
 通过sqlite注入写session缓存文件。   
