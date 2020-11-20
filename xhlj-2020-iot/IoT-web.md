@@ -127,7 +127,7 @@ name，pass参数传递用户名和密码。
 在设置cookie去读取flag。
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/xhlj-2020-iot/images/iot_web_2_1.png)
 
-## IoT-web3 后门账号（未完待续）
+## IoT-web3 后门账号
 >题目说明:路由器管理后台被攻陷，运维加了个访问认证，可惜中间件被黑客植入了后门账号。题目端口80（flag在根目录或者/workspace下）
 
 ### 思路
@@ -145,6 +145,9 @@ name，pass参数传递用户名和密码。
 ![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/xhlj-2020-iot/images/iot_web_3_httplogin.png)
 
 ### （2）php包含漏洞
+直接跳转到的页面。   
+很明显存在个php本地包含漏洞，利用/proc/self/environ即可。   
+[LFI通过/proc/self/environ直接获取webshell](https://yq.aliyun.com/articles/441861)
 index.php
 ```php
 <?php
@@ -165,5 +168,8 @@ echo.php
 <?php
     echo "<center><h1>very easy dont think too much</h1></center>";
 ```
+获取flag位置。
+![](https://raw.githubusercontent.com/ReAbout/ctf-writeup/master/xhlj-2020-iot/images/iot_web_3_exp.png)
+读取flag
 ## other
 比赛后提供了固件的root密码：1864a64aa761b0e4
