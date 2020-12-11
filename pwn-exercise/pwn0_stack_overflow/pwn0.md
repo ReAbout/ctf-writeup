@@ -20,8 +20,12 @@ NX即No-eXecute（不可执行）的意思，NX（DEP）的基本原理是将数
 PIE和ASLR不是一样的作用，ASLR只能对堆、栈和mmap随机化，而不能对如代码段，数据段随机化，使用PIE+ASLR则可以对代码段和数据段随机化。
 
 ### RELRO
-在Linux系统安全领域数据可以写的存储区就会是攻击的目标，尤其是存储函数指针的区域。 所以在安全防护的角度来说尽量减少可写的存储区域对安全会有极大的好处.
+在Linux系统安全领域数据可以写的存储区就会是攻击的目标，尤其是存储函数指针的区域。 所以在安全防护的角度来说尽量减少可写的存储区域对安全会有极大的好处。   
+RELRO 全名為 RELocation Read Only。共有三種保护模式，分別為 No / Partial / Full。
 
+- No RELRO - Link Map、GOT 可写
+- Partial RELRO - Link Map 不可写、GOT 可写
+- Full RELRO - Link Map、GOT 皆不可写
 
 ## 编译
 
