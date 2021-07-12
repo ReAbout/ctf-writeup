@@ -106,8 +106,9 @@ https://lxr.openwrt.org/source/ubus/libubus.h#L34
 跳转过去如下：   
 ![](./img/netapi6.png)
 修复后如下：
-![](./img/netapi5.png)
 ![](./img/netapi3.png)
+![](./img/netapi5.png)
+
 到这我们知道method为init。    
 ```
 tbus call netapi init <data>
