@@ -32,7 +32,7 @@ tcp 0 0 127.0.0.1:25351 127.0.0.1:784 ESTABLISHED 28 4388 5440/netapi
 其实通过分析发现:    
 - trafficd是个魔改ubusd的一个总线通信服务程序。  
 - netapi而是作为ubus客户端与总线注册和通信。    
-- traffic.lua呗netapi加载调用。   
+- traffic.lua被netapi加载调用。   
 
 我们在小米固件中也发现tbus程序，可以监听tbus总线信息，通过tbus list就可以发现netapi注册对象。   
 ```
