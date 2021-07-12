@@ -103,6 +103,7 @@ https://lxr.openwrt.org/source/ubus/libubus.h#L34
 通过地址信息我们发现如下：   
 ![](./img/netapi2.png)
 修复后如下：
+![](./img/netapi5.png)
 ![](./img/netapi3.png)
 到这我们知道method为init。    
 ```
