@@ -36,14 +36,27 @@ tcp 0 0 127.0.0.1:25351 127.0.0.1:784 ESTABLISHED 28 4388 5440/netapi
 
 我们在小米固件中也发现tbus程序，可以监听tbus总线信息，通过tbus list就可以发现netapi注册对象。   
 ```
->tbus list
->netapi
+Usage: tbus [<options>] <command> [arguments...]
+Options:
+ -p <port>:             Set the server port to connect to
+ -h <hostname>: Set the server hostname or ip to connect to
+ -t <timeout>:          Set the timeout (in seconds) for a command to complete
+ -S:                    Use simplified output (for scripts)
+ -v:                    More verbose output
+
+Commands:
+ - list [<path>]                        List objects
+ - call <path> <method> [<message>]     Call an object method
+ - listen [<path>...]                   Listen for events
+ - send <type> [<message>]              Send an event
+ - wait_for <object> [<object>...]      Wait for multiple objects to appear on ubus
+ - postfile <path> <filepath>   post file for ecos
 ```
 ### 4）攻击链猜测
 `发送payload---->trafficd（784）--[转发payload]-->netapi--[解析参数]-->traffic.lua---->触发命令注入获取Root Shell----->上黑页`
 ### 小节
 到此，我们发现2个binary和一个lua脚本要分析,漏洞类型为命令注入漏洞。我们需要知道如何给trafficd发送消息，以及发送什么消息。   
-发送消息的方法可以通过`tbus call`，发送什么消息向那个event就需要逆向分析了。
+发送消息的方法可以通过`tbus call`，发送什么消息向哪个event就需要逆向分析了。
 
 ## 0x03 程序分析
 
