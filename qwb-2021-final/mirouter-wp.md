@@ -12,8 +12,9 @@
 2. 题目说刷入patch，本次RW估计是埋的漏洞，而非0day或者1day。    
 ### 2)Diff
 打包固件文件，并通过后台发现固件版本为：2.13.65。    
-下载相同版本固件（http://bigota.miwifi.com/xiaoqiang/rom/r3p/miwifi_r3p_firmware_daddf_2.13.65.bin）进行对比。    
-结果就一个lua脚本不同（/usr/lib/lua/traffic.lua），如下： 
+下载相同版本固件（http://bigota.miwifi.com/xiaoqiang/rom/r3p/miwifi_r3p_firmware_daddf_2.13.65.bin）进行对比。 
+
+结果有/etc/配置文件不同，以及lua脚本（/usr/lib/lua/traffic.lua），该脚本最为可疑如下： 
 
 ![diff](./img/diff.png)
 发现是疑似命令注入过滤去掉`$`的转义，这样就可以通过`$()`的方式触发命令注入漏洞。   
