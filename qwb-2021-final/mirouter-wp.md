@@ -101,8 +101,10 @@ struct ubus_subscriber:
 ```
 https://lxr.openwrt.org/source/ubus/libubus.h#L34
 
-通过地址信息我们发现如下：   
-![](./img/netapi2.png)
+通过地址0x402070搜索结果如下：   
+![](./img/netapi-s.png)
+跳转过去如下：   
+![](./img/netapi6.png)
 修复后如下：
 ![](./img/netapi5.png)
 ![](./img/netapi3.png)
